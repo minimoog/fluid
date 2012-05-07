@@ -52,7 +52,7 @@ private:
     void reinitEGL();
     void render();
     void cleanupAndExit(EGLDisplay eglDisplay);
-    virtual EGLNativeWindowType getWindow();
+    EGLNativeWindowType getWindow();
 
 protected:
     EGLDisplay m_eglDisplay;

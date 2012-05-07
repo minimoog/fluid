@@ -151,6 +151,7 @@ void GLWindow::timerEvent(QTimerEvent *event)
 
 void GLWindow::createEGL()
 {
+    GLint errVal;
     m_eglDisplay = 0;
     m_eglConfig = 0;
     m_eglSurface = 0;
@@ -173,7 +174,7 @@ void GLWindow::createEGL()
     pi32ConfigAttribs[6] = EGL_NONE;
 
     EGLint pi32ContextAttribs[3];
-    pi32ContextAttribs[0] = EGL_CONTEXT_CLIENT_VERSION; pi32ConfigAttribs[1] = 2;
+    pi32ContextAttribs[0] = EGL_CONTEXT_CLIENT_VERSION; pi32ContextAttribs[1] = 2;
 
     pi32ContextAttribs[2] = EGL_NONE;
 
@@ -185,10 +186,19 @@ void GLWindow::createEGL()
     }
 
     m_eglSurface = eglCreateWindowSurface(m_eglDisplay, m_eglConfig, getWindow(), NULL);
+    if ((errVal = eglGetError()) != EGL_SUCCESS) {
+        cleanupAndExit(m_eglDisplay);
+    }
 
     m_eglContext = eglCreateContext(m_eglDisplay, m_eglConfig, NULL, pi32ContextAttribs);
+    if ((errVal = eglGetError()) != EGL_SUCCESS) {
+        cleanupAndExit(m_eglDisplay);
+    }
 
     eglMakeCurrent(m_eglDisplay, m_eglSurface, m_eglSurface, m_eglContext);
+    if ((errVal = eglGetError()) != EGL_SUCCESS) {
+        cleanupAndExit(m_eglDisplay);
+    }
 }
 
 void GLWindow::render()

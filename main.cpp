@@ -19,7 +19,7 @@
  */
 
 #include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
+#include "glwindow.h"
 
 #if defined(Q_WS_X11)
 #include <X11/Xlib.h>
@@ -27,14 +27,26 @@
 
 int main(int argc, char *argv[])
 {
+    QApplication a(argc, argv);
+
 #if defined(Q_WS_X11)
     XInitThreads();
 #endif
 
-    QCoreApplication::setAttribute(Qt::AA_NativeWindows, true);
-    QCoreApplication::setAttribute(Qt::AA_ImmediateWidgetCreation, true);
+    GLWindow *glwindow = new GLWindow();
+    glwindow->create();
+    glwindow->setWindowState(Qt::WindowNoState);
+    glwindow->showFullScreen();
+
+    int result = a.exec();
+
+    glwindow->destroy();
+    delete glwindow;
+
+    //QCoreApplication::setAttribute(Qt::AA_NativeWindows, true);
+    //QCoreApplication::setAttribute(Qt::AA_ImmediateWidgetCreation, true);
 
     //return a.exec();
 
-    return 0;
+    return result;
 }
