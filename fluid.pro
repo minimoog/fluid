@@ -4,16 +4,21 @@
 #
 #-------------------------------------------------
 
+LIBS += -lGLESv2 -lEGL
+
 QT       += core gui opengl
+# QT += meegographicssystemhelper
 
 TARGET = fluid
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        widget.cpp
+        widget.cpp \
+    glwindow.cpp
 
-HEADERS  += widget.h
+HEADERS  += widget.h \
+    glwindow.h
 
 CONFIG += mobility
 MOBILITY = 
@@ -33,3 +38,8 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/control \
     qtc_packaging/debian_harmattan/compat \
     qtc_packaging/debian_harmattan/changelog
+
+contains(MEEGO_EDITION,harmattan) {
+    target.path = /opt/fluid/bin
+    INSTALLS += target
+}

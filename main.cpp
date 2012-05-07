@@ -19,17 +19,22 @@
  */
 
 #include <QtGui/QApplication>
-#include "widget.h"
+#include <QtGui/QMainWindow>
+
+#if defined(Q_WS_X11)
+#include <X11/Xlib.h>
+#endif
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    Widget w;
-#if defined(Q_WS_S60)
-    w.showMaximized();
-#else
-    w.show();
+#if defined(Q_WS_X11)
+    XInitThreads();
 #endif
-    
-    return a.exec();
+
+    QCoreApplication::setAttribute(Qt::AA_NativeWindows, true);
+    QCoreApplication::setAttribute(Qt::AA_ImmediateWidgetCreation, true);
+
+    //return a.exec();
+
+    return 0;
 }
