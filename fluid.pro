@@ -14,10 +14,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        widget.cpp \
     glwindow.cpp
 
-HEADERS  += widget.h \
+HEADERS  += \
     glwindow.h
 
 CONFIG += mobility

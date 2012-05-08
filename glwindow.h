@@ -40,6 +40,11 @@ public:
     float getFramePerSeconds() const;
 
     GLuint loadTexture(const QString& imageFile);
+    GLuint loadVertexShader(const QString& filename);
+    GLuint loadFragmentShader(const QString& filename);
+    void checkShader(GLuint shader);
+    void checkProgram(GLuint program);
+    void glError(const char *file, int line);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);

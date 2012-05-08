@@ -18,6 +18,7 @@
  * Contact e-mail: Antonie Jovanoski <minimoog77_at_gmail.com>
  */
 
+#include <QtDebug>
 #include <QtGui>
 
 #ifdef Q_OS_UNIX
@@ -273,4 +274,109 @@ GLuint GLWindow::loadTexture(const QString &imageFile)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     delete [] pTexData;
     return texture;
+}
+
+GLuint GLWindow::loadVertexShader(const QString &filename)
+{
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    QFile file(filename);
+
+    if (file.exists()) {
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+        const char * code = file.readAll();
+
+        glShaderSource(vertexShader, 1, &code, NULL);
+        glCompileShader(vertexShader);
+        checkShader(vertexShader);
+
+        return vertexShader;
+    }
+
+    return 0;
+}
+
+GLuint GLWindow::loadFragmentShader(const QString &filename)
+{
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    QFile file(filename);
+
+    if (file.exists()) {
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+        const char * code = file.readAll();
+
+        glShaderSource(fragmentShader, 1, &code, NULL);
+        glCompileShader(fragmentShader);
+        checkShader(fragmentShader);
+
+        return fragmentShader;
+    }
+
+    return 0;
+}
+
+void GLWindow::checkShader(GLuint shader)
+{
+    GLint status;
+
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+    if (status == GL_FALSE)
+        qDebug() << "Compile error";
+    else
+        qDebug() << "Compile ok";
+
+    int loglen;
+    char logBuffer[1024];
+    glGetShaderInfoLog(shader, sizeof(logBuffer), &loglen, logBuffer);
+
+    if (loglen > 0)
+        qDebug() << logBuffer;
+}
+
+void GLWindow::checkProgram(GLuint program)
+{
+    GLint status;
+
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+
+    if (status == GL_FALSE)
+        qDebug() << "Linker error";
+    else
+        qDebug() << "Linker ok";
+
+    int loglen;
+    char logbuffer[1024];
+
+    glGetProgramInfoLog(program, sizeof(logbuffer), &loglen, logbuffer);
+    if (loglen > 0)
+        qDebug() << logbuffer;
+
+    glValidateProgram(program);
+    glGetProgramInfoLog(program, sizeof(logbuffer), &loglen, logbuffer);
+
+    if (loglen > 0)
+        qDebug() << logbuffer;
+}
+
+void GLWindow::glError(const char *file, int line)
+{
+    GLenum err (glGetError());
+
+    while (err!=GL_NO_ERROR) {
+        QString error;
+
+        switch(err) {
+        case GL_INVALID_OPERATION:      error="INVALID_OPERATION";      break;
+        case GL_INVALID_ENUM:           error="INVALID_ENUM";           break;
+        case GL_INVALID_VALUE:          error="INVALID_VALUE";          break;
+        case GL_OUT_OF_MEMORY:          error="OUT_OF_MEMORY";          break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:  error="INVALID_FRAMEBUFFER_OPERATION";  break;
+        }
+
+        qDebug() << "GL_" << error << " - " << file << ":" << line;
+
+        err=glGetError();
+    }
 }
