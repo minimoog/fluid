@@ -240,3 +240,37 @@ void GLWindow::cleanupAndExit(EGLDisplay eglDisplay)
 
     exit(0);
 }
+
+GLuint GLWindow::loadTexture(const QString &imageFile)
+{
+    QImage image(imageFile);
+
+    if (image.width() < 1 || image.height() < 1) {
+        // Failed to load the texture
+        return 0;
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    GLuint *pTexData = new GLuint[image.width() * image.height()];
+    GLuint *sdata = (GLuint*)image.bits();
+    GLuint *tdata = pTexData;
+
+    for (int y = 0; y < image.height(); y++) {
+        for (int x = 0; x < image.width(); x++) {
+            *tdata = ((*sdata&255) << 16) | (((*sdata>>8)&255) << 8)
+                    | (((*sdata>>16)&255) << 0) | (((*sdata>>24)&255) << 24);
+
+            sdata++;
+            tdata++;
+        }
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, pTexData);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    delete [] pTexData;
+    return texture;
+}
