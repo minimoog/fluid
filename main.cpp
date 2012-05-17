@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     glwindow->create();
     glwindow->setWindowState(Qt::WindowNoState);
     glwindow->showFullScreen();
+    glwindow->resume();
 
     int result = a.exec();
 
