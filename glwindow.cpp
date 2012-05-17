@@ -141,6 +141,8 @@ void GLWindow::resizeEvent(QResizeEvent *event)
 
     glViewport(0, 0, event->size().width(), event->size().height());
 
+    resizeGL(event->size().width(), event->size().height());
+
     QWidget::resizeEvent(event);
 }
 
@@ -200,6 +202,8 @@ void GLWindow::createEGL()
     if ((errVal = eglGetError()) != EGL_SUCCESS) {
         cleanupAndExit(m_eglDisplay);
     }
+
+    initializeGL();
 }
 
 void GLWindow::render()
@@ -213,6 +217,8 @@ void GLWindow::render()
     } else {
         m_fps = 100000.0f;
     }
+
+    renderGL();
 
     if (!eglSwapBuffers(m_eglDisplay, m_eglSurface)) {
 
@@ -254,6 +260,11 @@ GLuint GLWindow::loadTexture(const QString &imageFile)
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     GLuint *pTexData = new GLuint[image.width() * image.height()];
     GLuint *sdata = (GLuint*)image.bits();
     GLuint *tdata = pTexData;
@@ -270,8 +281,7 @@ GLuint GLWindow::loadTexture(const QString &imageFile)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, pTexData);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     delete [] pTexData;
     return texture;
 }
@@ -379,4 +389,19 @@ void GLWindow::glError(const char *file, int line)
 
         err=glGetError();
     }
+}
+
+void GLWindow::initializeGL()
+{
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void GLWindow::renderGL()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void GLWindow::resizeGL(int w, int h)
+{
+
 }

@@ -46,38 +46,37 @@ public:
     void checkProgram(GLuint program);
     void glError(const char *file, int line);
 
+public slots:
+    void pause();
+    void resume();
+
 protected:
     bool eventFilter(QObject *object, QEvent *event);
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
     void timerEvent(QTimerEvent *event);
 
+    virtual void initializeGL();
+    virtual void renderGL();
+    virtual void resizeGL(int w, int h);
+
 private:
     void createEGL();
-    void reinitEGL();
+    //void reinitEGL();
     void render();
     void cleanupAndExit(EGLDisplay eglDisplay);
     EGLNativeWindowType getWindow();
 
-protected:
     EGLDisplay m_eglDisplay;
     EGLConfig m_eglConfig;
     EGLSurface m_eglSurface;
     EGLContext m_eglContext;
-
     unsigned int m_previousTime;
     unsigned int m_currentTime;
     float m_frameTime;
     float m_fps;
     bool m_paused;
     int m_timerID;
-
-signals:
-    
-public slots:
-    void pause();
-    void resume();
-    
 };
 
 #endif // GLWINDOW_H
