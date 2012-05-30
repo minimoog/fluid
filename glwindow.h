@@ -77,6 +77,9 @@ private:
     float m_fps;
     bool m_paused;
     int m_timerID;
+
+    GLuint m_renderTexture;
+    GLuint m_fbo;
 };
 
 #endif // GLWINDOW_H
