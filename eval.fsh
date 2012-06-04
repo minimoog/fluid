@@ -20,7 +20,6 @@ void main(void)
 
     float next = k1 * center.y + k2 * center.x + k3 * (right.y + left.y + down.y + up.y);
     float prev = center.y;
-    float stat = center.z;
 
-    gl_FragColor = vec4(stat * prev, stat * next, center.z, 1.0);
+    gl_FragColor = vec4(prev, next, center.z, 1.0);
 }
