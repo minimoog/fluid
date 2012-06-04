@@ -38,7 +38,8 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/compat \
     qtc_packaging/debian_harmattan/changelog \
     simple.vsh \
-    eval.fsh
+    eval.fsh \
+    render.fsh
 
 contains(MEEGO_EDITION,harmattan) {
     target.path = /opt/fluid/bin
