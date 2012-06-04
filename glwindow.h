@@ -78,8 +78,9 @@ private:
     bool m_paused;
     int m_timerID;
 
-    GLuint m_renderTexture;
-    GLuint m_fbo;
+    GLuint m_renderTexture[2];
+    GLuint m_fbo[2];
+    int m_whichRenderTarget;    //0 or 1 ### TODO
 };
 
 #endif // GLWINDOW_H
