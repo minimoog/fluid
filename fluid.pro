@@ -39,13 +39,14 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/changelog \
     simple.vsh \
     eval.fsh \
-    render.fsh
+    render.fsh \
+    Trees.jpg
 
 contains(MEEGO_EDITION,harmattan) {
     target.path = /opt/fluid/bin
     INSTALLS += target
 
     shaders.path = /opt/fluid/bin
-    shaders.files += simple.vsh render.fsh eval.fsh
+    shaders.files += simple.vsh render.fsh eval.fsh Trees.jpg
     INSTALLS += shaders
 }

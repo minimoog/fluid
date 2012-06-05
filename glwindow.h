@@ -85,6 +85,11 @@ private:
     GLuint m_programEval;
     GLuint m_vsEval;
     GLuint m_fsEval;
+
+    GLuint m_programRender;
+    GLuint m_fsRender;
+
+    GLuint m_texture;
 };
 
 #endif // GLWINDOW_H

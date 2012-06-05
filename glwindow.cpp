@@ -437,6 +437,8 @@ void GLWindow::initializeGL()
     glEnableVertexAttribArray(1);
 
     //shader stuff
+
+    //evaluation shader
     m_programEval = glCreateProgram();
     //m_vsEval = loadVertexShader("simple.vsh");
     m_vsEval = loadVertexShader("/opt/fluid/bin/simple.vsh");
@@ -449,8 +451,22 @@ void GLWindow::initializeGL()
     glBindAttribLocation(m_programEval, 1, "vertexTexCoord");
 
     glLinkProgram(m_programEval);
-
     checkProgram(m_programEval);
+
+    //render program
+    m_programRender = glCreateProgram();
+    m_fsRender = loadFragmentShader("/opt/fluid/bin/render.fsh");
+    glAttachShader(m_programRender, m_vsEval);
+    glAttachShader(m_programRender, m_fsRender);
+
+    glBindAttribLocation(m_programRender, 0, "vertexPos");
+    glBindAttribLocation(m_programRender, 1, "vertexTexCoord");
+
+    glLinkProgram(m_programRender);
+    checkProgram(m_programRender);
+
+    //texture
+    m_texture = loadTexture("/opt/fluid/bin/Trees.jpg");
 }
 
 void GLWindow::renderGL()
