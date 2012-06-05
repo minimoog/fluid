@@ -295,7 +295,10 @@ GLuint GLWindow::loadVertexShader(const QString &filename)
     if (file.exists()) {
         file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-        const char * code = file.readAll();
+        QByteArray vertexShaderSource = file.readAll();
+        vertexShaderSource.append('\0');
+
+        const char * code = vertexShaderSource.constData();
 
         glShaderSource(vertexShader, 1, &code, NULL);
         glCompileShader(vertexShader);
@@ -315,7 +318,10 @@ GLuint GLWindow::loadFragmentShader(const QString &filename)
     if (file.exists()) {
         file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-        const char * code = file.readAll();
+        QByteArray fragmentShaderSource = file.readAll();
+        fragmentShaderSource.append('\0');
+
+        const char * code = fragmentShaderSource.constData();
 
         glShaderSource(fragmentShader, 1, &code, NULL);
         glCompileShader(fragmentShader);
@@ -425,6 +431,26 @@ void GLWindow::initializeGL()
     status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //vertex array stuff
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    //shader stuff
+    m_programEval = glCreateProgram();
+    //m_vsEval = loadVertexShader("simple.vsh");
+    m_vsEval = loadVertexShader("/opt/fluid/bin/simple.vsh");
+    //m_fsEval = loadFragmentShader("eval.fsh");
+    m_fsEval = loadFragmentShader("/opt/fluid/bin/eval.fsh");
+    glAttachShader(m_programEval, m_vsEval);
+    glAttachShader(m_programEval, m_fsEval);
+
+    glBindAttribLocation(m_programEval, 0, "vertexPos");
+    glBindAttribLocation(m_programEval, 1, "vertexTexCoord");
+
+    glLinkProgram(m_programEval);
+
+    checkProgram(m_programEval);
 }
 
 void GLWindow::renderGL()

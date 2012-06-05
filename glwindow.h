@@ -81,6 +81,10 @@ private:
     GLuint m_renderTexture[2];
     GLuint m_fbo[2];
     int m_whichRenderTarget;    //0 or 1 ### TODO
+
+    GLuint m_programEval;
+    GLuint m_vsEval;
+    GLuint m_fsEval;
 };
 
 #endif // GLWINDOW_H
