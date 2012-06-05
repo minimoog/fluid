@@ -44,4 +44,8 @@ OTHER_FILES += \
 contains(MEEGO_EDITION,harmattan) {
     target.path = /opt/fluid/bin
     INSTALLS += target
+
+    shaders.path = /opt/fluid/bin
+    shaders.files += simple.vsh render.fsh eval.fsh
+    INSTALLS += shaders
 }
