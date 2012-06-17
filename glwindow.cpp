@@ -25,8 +25,19 @@
 #include <QX11Info>
 #endif
 
+#define BUFFER_OFFSET(i) (reinterpret_cast<void*>(i))
+
 //#include <qmeegographicssystemhelper.h>
 #include "glwindow.h"
+
+static const float s_vertices[]= {
+    -1.0f, -1.0f, 0.0f,
+     1.0f, -1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,
+     1.0f, -1.0f, 0.0f,
+     1.0f,  1.0f, 0.0f
+};
 
 GLWindow::GLWindow(QWidget *parent)
     :   QWidget(parent),
@@ -116,7 +127,7 @@ void GLWindow::resume()
         return;
 
     m_paused = false;
-    m_timerID = startTimer(0);
+    m_timerID = startTimer(17);
 }
 
 bool GLWindow::eventFilter(QObject *object, QEvent *event)
@@ -398,6 +409,22 @@ void GLWindow::glError(const char *file, int line)
     }
 }
 
+void GLWindow::mousePressEvent(QMouseEvent *event)
+{
+    qDebug() << event->x() << event->y();
+
+    char exc[4] = { 0, 255, 1, 1};
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_renderTexture[0]);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 300, 200, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, exc);
+
+    glBindTexture(GL_TEXTURE_2D, m_renderTexture[1]);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 300, 200, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, exc);
+}
+
 void GLWindow::initializeGL()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -434,7 +461,6 @@ void GLWindow::initializeGL()
 
     //vertex array stuff
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
 
     //shader stuff
 
@@ -448,7 +474,6 @@ void GLWindow::initializeGL()
     glAttachShader(m_programEval, m_fsEval);
 
     glBindAttribLocation(m_programEval, 0, "vertexPos");
-    glBindAttribLocation(m_programEval, 1, "vertexTexCoord");
 
     glLinkProgram(m_programEval);
     checkProgram(m_programEval);
@@ -460,18 +485,83 @@ void GLWindow::initializeGL()
     glAttachShader(m_programRender, m_fsRender);
 
     glBindAttribLocation(m_programRender, 0, "vertexPos");
-    glBindAttribLocation(m_programRender, 1, "vertexTexCoord");
 
     glLinkProgram(m_programRender);
     checkProgram(m_programRender);
 
     //texture
     m_texture = loadTexture("/opt/fluid/bin/Trees.jpg");
+
+    //vbo
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices, GL_STATIC_DRAW);
+
+    //viewport
+    glViewport(0, 0, 854, 480);
+
+    //uniforms, eval
+    glUseProgram(m_programEval);
+
+    int texUnit0Index = glGetUniformLocation(m_programEval, "texUnit0");
+    glUniform1i(texUnit0Index, 0);
+
+    int widthIndex = glGetUniformLocation(m_programEval, "width");
+    glUniform1f(widthIndex, (float)854);
+
+    int heightIndex = glGetUniformLocation(m_programEval, "height");
+    glUniform1f(heightIndex, (float)480);
+
+    //uniform, render
+    glUseProgram(m_programRender);
+    texUnit0Index = glGetUniformLocation(m_programRender, "texUnit0");
+    glUniform1i(texUnit0Index, 0);
+
+    int texUnit1Index = glGetUniformLocation(m_programRender, "texUnit1");
+    glUniform1i(texUnit1Index, 1);
+
+    widthIndex = glGetUniformLocation(m_programRender, "width");
+    glUniform1f(widthIndex, (float)854);
+
+    heightIndex = glGetUniformLocation(m_programRender, "height");
+    glUniform1f(heightIndex, (float)480);
+}
+
+void GLWindow::eval()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_renderTexture[1 - m_whichRenderTarget]);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_renderTexture[m_whichRenderTarget]);
+
+    glUseProgram(m_programEval);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    m_whichRenderTarget = 1 - m_whichRenderTarget;
 }
 
 void GLWindow::renderGL()
 {
+    eval();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_renderTexture[0]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+
+    glUseProgram(m_programRender);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void GLWindow::resizeGL(int w, int h)

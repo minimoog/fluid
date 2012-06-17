@@ -55,6 +55,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
     void timerEvent(QTimerEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 
     virtual void initializeGL();
     virtual void renderGL();
@@ -64,6 +65,7 @@ private:
     void createEGL();
     //void reinitEGL();
     void render();
+    void eval();
     void cleanupAndExit(EGLDisplay eglDisplay);
     EGLNativeWindowType getWindow();
 
@@ -90,6 +92,8 @@ private:
     GLuint m_fsRender;
 
     GLuint m_texture;
+
+    GLuint m_vbo;
 };
 
 #endif // GLWINDOW_H

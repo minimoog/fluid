@@ -1,14 +1,10 @@
 attribute highp vec3 vertexPos;
-attribute highp vec2 vertexTexCoord;
-
-//uniform highp mat4 viewMatrix;
-uniform highp mat4 projectionMatrix;
 
 varying highp vec2 texCoordOutput;
 
 void main(void)
-{
-    texCoordOutput = vertexTexCoord;
+{    
+    texCoordOutput = (vec2(vertexPos.x, vertexPos.y) + vec2(1.0)) * 0.5;
 
-    gl_Position = projectionMatrix  * vec4(vertexPos, 1);
+    gl_Position = vec4(vertexPos, 1);
 }
