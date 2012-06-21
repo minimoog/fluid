@@ -91,6 +91,9 @@ private:
     GLuint m_programRender;
     GLuint m_fsRender;
 
+    GLuint m_programDroplet;
+    GLuint m_fsDroplet;
+
     GLuint m_texture;
 
     GLuint m_vbo;

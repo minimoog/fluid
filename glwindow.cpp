@@ -127,7 +127,7 @@ void GLWindow::resume()
         return;
 
     m_paused = false;
-    m_timerID = startTimer(17);
+    m_timerID = startTimer(0);
 }
 
 bool GLWindow::eventFilter(QObject *object, QEvent *event)
@@ -413,16 +413,17 @@ void GLWindow::mousePressEvent(QMouseEvent *event)
 {
     qDebug() << event->x() << event->y();
 
-    char exc[4] = { 0, 255, 1, 1};
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_renderTexture[0]);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 300, 200, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, exc);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-    glBindTexture(GL_TEXTURE_2D, m_renderTexture[1]);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 300, 200, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, exc);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_renderTexture[m_whichRenderTarget]);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glUseProgram(m_programDroplet);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void GLWindow::initializeGL()
@@ -489,6 +490,17 @@ void GLWindow::initializeGL()
     glLinkProgram(m_programRender);
     checkProgram(m_programRender);
 
+    //droplet program
+    m_programDroplet = glCreateProgram();
+    m_fsDroplet = loadFragmentShader("/opt/fluid/bin/droplet.fsh");
+    glAttachShader(m_programDroplet, m_vsEval);
+    glAttachShader(m_programDroplet, m_fsDroplet);
+
+    glBindAttribLocation(m_programDroplet, 0, "vertexPos");
+
+    glLinkProgram(m_programDroplet);
+    checkProgram(m_programDroplet);
+
     //texture
     m_texture = loadTexture("/opt/fluid/bin/Trees.jpg");
 
@@ -525,6 +537,15 @@ void GLWindow::initializeGL()
 
     heightIndex = glGetUniformLocation(m_programRender, "height");
     glUniform1f(heightIndex, (float)480);
+
+    //uniform, droplet
+    glUseProgram(m_programDroplet);
+    int dropletPosition = glGetUniformLocation(m_programDroplet, "droplet_position");
+    float dps[] = { 300.0f, 200.0f };
+    glUniform2fv(dropletPosition, 1, dps);
+
+    int resolutionIndex = glGetUniformLocation(m_programDroplet, "resolution");
+    glUniform2f(resolutionIndex, 854.0f, 480.0f);
 }
 
 void GLWindow::eval()

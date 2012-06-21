@@ -40,13 +40,14 @@ OTHER_FILES += \
     simple.vsh \
     eval.fsh \
     render.fsh \
-    Trees.jpg
+    Trees.jpg \
+    droplet.fsh
 
 contains(MEEGO_EDITION,harmattan) {
     target.path = /opt/fluid/bin
     INSTALLS += target
 
     shaders.path = /opt/fluid/bin
-    shaders.files += simple.vsh render.fsh eval.fsh Trees.jpg
+    shaders.files += simple.vsh render.fsh eval.fsh droplet.fsh Trees.jpg
     INSTALLS += shaders
 }

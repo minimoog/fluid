@@ -1,6 +1,10 @@
-attribute highp vec3 vertexPos;
+#ifdef GL_ES
+precision lowp float;
+#endif
 
-varying highp vec2 texCoordOutput;
+attribute vec3 vertexPos;
+
+varying vec2 texCoordOutput;
 
 void main(void)
 {    
